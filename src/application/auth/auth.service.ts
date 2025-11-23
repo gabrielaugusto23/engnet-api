@@ -21,7 +21,7 @@ export class AuthServiceImplemantation  {
         }
 
         const senhaInserida = login.password;
-        const senhaHash = user.password;
+        const senhaHash = user.senha;
 
         const usuarioAutenticado = await bcrypt.compare(senhaInserida, senhaHash);
 
