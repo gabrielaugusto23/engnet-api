@@ -49,4 +49,11 @@ export class RelatorioService {
     // Aqui salva as alterações
     return await this.repo.save(relatorio);
   }
+
+  async remove(id: string) {
+    // Garante que o relatório existe ou lança um erro 404
+    const relatorio = await this.findOne(id); 
+    return await this.repo.remove(relatorio);
+  }
+
 }

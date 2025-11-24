@@ -5,12 +5,18 @@ import databaseConfig from "../config/database.config";
 import {AuthModule} from "./auth.module";
 import { UsuariosModule } from '../../../application/user/usuarios.module';
 import {RelatorioModule} from "../../../application/relatorio/relatorio.module";
+import { ClientModule } from '../../../application/client/client.module';
+import { VendaModule } from '../../../application/venda/venda.module';
+import { TransacaoModule } from 'src/application/transcao/transacao.module';
 
 @Module({
   imports: [
     AuthModule,
     UsuariosModule,
+    ClientModule,
     RelatorioModule,
+    VendaModule,
+    TransacaoModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig],

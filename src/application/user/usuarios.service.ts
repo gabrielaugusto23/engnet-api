@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { UserEntity } from '../../entity/user/user.entity'; 
 import { CriarUsuarioDto } from './dto/create-user.dto';
 import { AtualizarUsuarioDto } from './dto/update-user.dto';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class UsuariosService {
@@ -62,7 +63,7 @@ export class UsuariosService {
   async atualizar(id: string, dto: AtualizarUsuarioDto): Promise<UserEntity> {
     const usuario = await this.obterPorId(id);
 
-    // Se estiver trocando de email ele verificar se já não pertence a outra pessoa
+    // Se estiver trocando de email ele verificar se o email daqui já não pertence a outra conta
     if (dto.email && dto.email !== usuario.email) {
       const emailEmUso = await this.usuarioRepository.findOneBy({ email: dto.email });
       if (emailEmUso) {
@@ -70,7 +71,7 @@ export class UsuariosService {
       }
     }
 
-    // Se tiver senha nova ele criptografa
+    // Se tiver senha nova ele criptografa a senha
     const dadosAtualizados = { ...dto };
     if (dadosAtualizados.senha) {
       const salt = await bcrypt.genSalt(10);
@@ -83,7 +84,18 @@ export class UsuariosService {
   }
 
   async remover(id: string): Promise<void> {
-    const usuario = await this.obterPorId(id);
-    await this.usuarioRepository.remove(usuario);
+    const usuario = await this.obterPorId(id); 
+    try {
+      await this.usuarioRepository.remove(usuario);
+    } catch (error: any) {
+      // Código 23503 dn Postgres significa violação de chave estrangeira
+      if (error?.code === '23503') {
+        throw new BadRequestException(
+          // Se esse usuário já está sendo usado em outra tabela retorna esse erro
+          'Não é possível excluir este usuário pois ele possui histórico no sistema (Vendas, Reembolsos, etc.). Recomendamos desativá-lo alterando o campo "ativo" para false.',
+        );
+      }
+      throw error;
+    }
   }
 }

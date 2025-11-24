@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, HttpCode, Delete, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { RelatorioService } from '../application/relatorio/relatorio.service';
 import { CreateRelatorioDto } from '../application/relatorio/dto/create-relatorio.dto';
@@ -35,5 +35,14 @@ export class RelatorioController {
   @ApiResponse({ status: 404, description: 'Relatório não encontrado.' })
   update(@Param('id') id: string, @Body() dto: UpdateRelatorioDto) {
     return this.service.update(id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Remove um relatório' })
+  @ApiParam({ name: 'id', description: 'UUID do relatório' })
+  @ApiResponse({ status: 204, description: 'Relatório removido com sucesso.' })
+  remove(@Param('id') id: string) {
+    return this.service.remove(id);
   }
 }
