@@ -8,6 +8,7 @@ import {RelatorioModule} from "../../../application/relatorio/relatorio.module";
 import { ClientModule } from '../../../application/client/client.module';
 import { VendaModule } from '../../../application/venda/venda.module';
 import { TransacaoModule } from 'src/application/transcao/transacao.module';
+import { ReembolsoModule } from '../../../application/reembolso/reembolso.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { TransacaoModule } from 'src/application/transcao/transacao.module';
     RelatorioModule,
     VendaModule,
     TransacaoModule,
+    ReembolsoModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig],
