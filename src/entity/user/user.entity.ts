@@ -11,7 +11,7 @@ export class UserEntity {
   @Column({ name: 'email', unique: true, length: 100 })
   email: string;
   
-  // select: false que é para esconder a senha no retorno
+  // select: false, que é para esconder a senha no retorno
   @Column({ name: 'senha', select: false }) 
   senha: string;
 
@@ -21,9 +21,6 @@ export class UserEntity {
   @CreateDateColumn({ name: 'data_criacao' })
   dataCriacao: Date;
 
-  // Aqui os relacionamentos
   @OneToMany(() => Reembolso, (reembolso) => reembolso.usuario)
   reembolsos: Reembolso[];
-  
-  // Adicionar a parte das notificações posteriormente 
 }

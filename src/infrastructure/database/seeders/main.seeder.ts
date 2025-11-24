@@ -16,7 +16,7 @@ async function bootstrap() {
     console.log('Inicializando conexão para Seeding...');
     await AppDataSource.initialize();
 
-    // 1. Seed para tipos de despesa
+    // Seed para tipos de despesa
     const tipoDespesaRepo = AppDataSource.getRepository(TipoDespesa);
     const tipos = [
       { nome: 'Alimentação', descricao: 'Gastos com refeições durante o trabalho.' },
@@ -33,7 +33,7 @@ async function bootstrap() {
       }
     }
 
-    // 2. Seed usuário (admin)
+    // Seed usuário (admin)
     const userRepo = AppDataSource.getRepository(UserEntity);
     const adminEmail = 'admin@engnet.com.br';
     
@@ -53,7 +53,7 @@ async function bootstrap() {
       console.log('[SKIP] Usuário Admin já existe.');
     }
 
-    // 3. Seed relatórios 
+    // Seed relatórios 
     console.log('Gerando relatórios de exemplo...');
     const relatorioRepo = AppDataSource.getRepository(Relatorio);
 
