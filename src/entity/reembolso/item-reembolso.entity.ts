@@ -15,8 +15,8 @@ export class ItemReembolso {
 
   @Column({ name: 'valor', type: 'decimal', precision: 10, scale: 2 })
   valor: number;
-
-  @Column({ name: 'comprovante', nullable: true }) // URL da imagem/arquivo
+  // URL da imagem ou arquivo
+  @Column({ name: 'comprovante', nullable: true }) 
   comprovante: string;
 
   // FK para Reembolso

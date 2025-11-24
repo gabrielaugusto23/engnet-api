@@ -4,7 +4,6 @@ import { RelatorioService } from '../application/relatorio/relatorio.service';
 import { CreateRelatorioDto } from '../application/relatorio/create-relatorio.dto';
 import { UpdateRelatorioDto } from '../application/relatorio/update-relatorio.dto';
 
-// Aqui cria a categoria no Swagger
 @ApiTags('Relatórios') 
 @Controller('relatorios')
 export class RelatorioController {
