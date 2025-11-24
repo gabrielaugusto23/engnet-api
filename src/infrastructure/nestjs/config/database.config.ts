@@ -9,6 +9,7 @@ import { ItemReembolso } from '../../../entity/reembolso/item-reembolso.entity';
 import { TipoDespesa } from '../../../entity/tipo-despesa/tipo-despesa.entity';
 import { SolicitaAprova } from '../../../entity/solicita-aprova/solicita-aprova.entity';
 import { Relatorio } from '../../../entity/relatorio/relatorio.entity';
+import { UsuarioEntity } from '../../../modules/usuarios/entidades/usuario.entity';
 
 export default registerAs('database', (): TypeOrmModuleOptions => ({
   type: 'postgres',
@@ -26,6 +27,7 @@ export default registerAs('database', (): TypeOrmModuleOptions => ({
     TipoDespesa,
     SolicitaAprova,
     Relatorio,
+    UsuarioEntity,
   ],
   
   synchronize: false, 
