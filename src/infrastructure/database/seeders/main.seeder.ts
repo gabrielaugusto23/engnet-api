@@ -1,21 +1,14 @@
 import { AppDataSource } from '../config/data-source';
-import { TipoDespesa } from '../../../entity/tipo-despesa/tipo-despesa.entity';
 import { UserEntity } from '../../../entity/user/user.entity';
 import { Relatorio } from '../../../entity/relatorio/relatorio.entity';
 import { Cliente } from '../../../entity/client/client.entity';
 import { Venda } from '../../../entity/venda/venda.entity';
 import { Transacao } from '../../../entity/transacao/transacao.entity';
+import { Reembolso } from '../../../entity/reembolso/reembolso.entity';
+import { CategoriaRelatorio, PeriodoRelatorio, StatusRelatorio, TipoRelatorio } from '../../../entity/relatorio/relatorio.enums';
+import { CategoriaVenda, StatusVenda} from '../../../entity/venda/venda.enums';
 import { TipoTransacao, StatusTransacao } from '../../../entity/transacao/transacao.enums';
-import { 
-  CategoriaRelatorio, 
-  PeriodoRelatorio, 
-  StatusRelatorio, 
-  TipoRelatorio 
-} from '../../../entity/relatorio/relatorio.enums';
-import { 
-  CategoriaVenda, 
-  StatusVenda 
-} from '../../../entity/venda/venda.enums';
+import { CategoriaReembolso, StatusReembolso } from '../../../entity/reembolso/reembolso.enums';
 import { UserRole } from '../../../entity/user/user.enums'; 
 import { StatusCliente } from '../../../entity/client/client.enums'; 
 import * as bcrypt from 'bcrypt';
@@ -24,23 +17,6 @@ async function bootstrap() {
   try {
     console.log('Inicializando conexão para Seeding...');
     await AppDataSource.initialize();
-
-    // Seed para tipos de despesas
-    const tipoDespesaRepo = AppDataSource.getRepository(TipoDespesa);
-    const tipos = [
-      { nome: 'Alimentação', descricao: 'Gastos com refeições durante o trabalho.' },
-      { nome: 'Transporte', descricao: 'Uber, Táxi, Combustível.' },
-      { nome: 'Hospedagem', descricao: 'Hotéis e estadias.' },
-      { nome: 'Equipamentos', descricao: 'Mouses, teclados, cabos.' },
-    ];
-
-    for (const tipo of tipos) {
-      const exists = await tipoDespesaRepo.findOneBy({ nome: tipo.nome });
-      if (!exists) {
-        await tipoDespesaRepo.save(tipo);
-        console.log(`[OK] Tipo Despesa criado: ${tipo.nome}`);
-      }
-    }
 
     // Seed para usuários
     const userRepo = AppDataSource.getRepository(UserEntity);
@@ -66,9 +42,9 @@ async function bootstrap() {
 
     // Criando usuário membro caso ele não exista ainda
     const memberEmail = 'membro@engnet.com.br';
-    const memberExists = await userRepo.findOneBy({ email: memberEmail });
+    let memberUser = await userRepo.findOneBy({ email: memberEmail });
 
-    if (!memberExists) {
+    if (!memberUser) {
       const passwordHash = await bcrypt.hash('123456', 10);
       const member = userRepo.create({
         nome: 'Alberto Silva',
@@ -77,8 +53,10 @@ async function bootstrap() {
         ativo: true,
         role: UserRole.MEMBER,
       });
-      await userRepo.save(member);
+      memberUser = await userRepo.save(member);
       console.log(`[OK] Usuário MEMBER criado: ${memberEmail}`);
+    }else {
+       console.log(`[SKIP] Usuário MEMBER já existe: ${memberEmail}`);
     }
 
     // Seed para clientes
@@ -127,7 +105,7 @@ async function bootstrap() {
     console.log('Gerando vendas de exemplo...');
     const vendaRepo = AppDataSource.getRepository(Venda);
 
-    if (adminUser && memberExists && joao && maria && tech) {
+    if (adminUser && memberUser && joao && maria && tech) {
       const vendasExemplo = [
         {
           descricao: 'Projeto de Consultoria TI',
@@ -162,7 +140,7 @@ async function bootstrap() {
           valor: 25000.00,
           status: StatusVenda.PROCESSANDO,
           dataHora: new Date('2025-11-24T09:00:00'),
-          vendedor: memberExists,
+          vendedor: memberUser,
           cliente: tech
         }
       ];
@@ -226,6 +204,57 @@ async function bootstrap() {
           const novaTrx = transacaoRepo.create(trx);
           await transacaoRepo.save(novaTrx);
           console.log(`[OK] Transação criada: ${trx.descricao}`);
+        }
+      }
+    }
+
+    // Seed para reembolsos
+
+    console.log('Gerando reembolsos de exemplo...');
+    const reembolsoRepo = AppDataSource.getRepository(Reembolso);
+
+    if (adminUser && memberUser) {
+      const reembolsosExemplo = [
+        // Reembolso feito pelo usuário Admin 
+        {
+          usuario: adminUser,
+          categoria: CategoriaReembolso.COMBUSTIVEL,
+          descricao: 'Viagem para visita ao Cliente ABC',
+          justificativa: 'Visita técnica contratual.',
+          valor: 120.00,
+          dataDespesa: new Date('2025-10-10'),
+          status: StatusReembolso.APROVADO,
+          comprovanteUrl: 'https://exemplo.com/nota-gasolina.jpg'
+        },
+        {
+          usuario: memberUser,
+          categoria: CategoriaReembolso.ALIMENTACAO,
+          descricao: 'Almoço de alinhamento com equipe',
+          justificativa: 'Alinhamento quinzenal de projetos.',
+          valor: 85.50,
+          dataDespesa: new Date('2025-11-20'),
+          status: StatusReembolso.PENDENTE,
+          comprovanteUrl: undefined
+        },
+        {
+          usuario: memberUser,
+          categoria: CategoriaReembolso.MATERIAL_ESCRITORIO,
+          descricao: 'Compra de Mouse Ergonômico',
+          justificativa: undefined,
+          valor: 245.30,
+          dataDespesa: new Date('2025-11-22'),
+          status: StatusReembolso.RASCUNHO,
+          comprovanteUrl: undefined
+        }
+      ];
+
+      for (const item of reembolsosExemplo) {
+        // Verifica se já existe esse reembolso pelo campo da descrição 
+        const exists = await reembolsoRepo.findOneBy({ descricao: item.descricao });
+        if (!exists) {
+          const novoReembolso = reembolsoRepo.create(item);
+          await reembolsoRepo.save(novoReembolso);
+          console.log(`[OK] Reembolso criado: ${item.descricao}`);
         }
       }
     }

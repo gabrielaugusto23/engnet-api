@@ -1,38 +1,76 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-import { UserEntity } from '../user/user.entity';
-import { ItemReembolso } from './item-reembolso.entity';
-
-export enum StatusReembolso {
-  EM_ANALISE = 'EM_ANALISE',
-  APROVADO = 'APROVADO',
-  REJEITADO = 'REJEITADO',
-}
+import { 
+  Entity, 
+  PrimaryGeneratedColumn, 
+  Column, 
+  CreateDateColumn, 
+  UpdateDateColumn, 
+  ManyToOne, 
+  JoinColumn,
+  Generated 
+} from 'typeorm';
+import { Expose } from 'class-transformer';
+import { UserEntity } from '../user/user.entity'; 
+import { CategoriaReembolso, StatusReembolso } from './reembolso.enums';
 
 @Entity('reembolso')
 export class Reembolso {
   @PrimaryGeneratedColumn('uuid', { name: 'id_reembolso' })
   id: string;
 
-  @Column({ name: 'data_solicitacao', type: 'timestamp' })
-  dataSolicitacao: Date;
+  @Column({ name: 'codigo_sequencial', type: 'int' })
+  @Generated('increment')
+  codigoSequencial: number;
 
-  @Column({ name: 'data_aprovacao', type: 'timestamp', nullable: true })
-  dataAprovacao: Date;
+  @Expose()
+  get codigo(): string {
+    return `R${this.codigoSequencial.toString().padStart(3, '0')}`;
+  }
 
-  @Column({ name: 'status', type: 'enum', enum: StatusReembolso, default: StatusReembolso.EM_ANALISE })
-  status: StatusReembolso;
-
-  @Column({ name: 'valor_total', type: 'decimal', precision: 10, scale: 2 })
-  valorTotal: number;
-
-  @Column({ name: 'observacao', type: 'text', nullable: true })
-  observacao: string;
-
-  // FK para Usuario 
-  @ManyToOne(() => UserEntity, (usuario) => usuario.reembolsos)
-  @JoinColumn({ name: 'FK_USUARIO_id_usuario' }) 
+  @ManyToOne(() => UserEntity, { eager: true }) 
+  @JoinColumn({ name: 'id_usuario' })
   usuario: UserEntity;
 
-  @OneToMany(() => ItemReembolso, (item) => item.reembolso, { cascade: true })
-  itens: ItemReembolso[];
+  @Column({ name: 'id_usuario', nullable: true })
+  usuarioId: string;
+
+  @Column({ 
+    name: 'categoria', 
+    type: 'enum', 
+    enum: CategoriaReembolso 
+  })
+  categoria: CategoriaReembolso;
+
+  @Column({ name: 'descricao', type: 'text' }) 
+  descricao: string;
+
+  @Column({ name: 'justificativa_comercial', type: 'text', nullable: true })
+  justificativa: string;
+
+  @Column({ 
+    name: 'valor', 
+    type: 'decimal', 
+    precision: 10, 
+    scale: 2 
+  })
+  valor: number;
+
+  @Column({ name: 'data_despesa', type: 'date' })
+  dataDespesa: Date; // A data que ocorreu a despesa (pode ser diferente da data criada (criadoEm))
+
+  @Column({ 
+    name: 'status', 
+    type: 'enum', 
+    enum: StatusReembolso,
+    default: StatusReembolso.RASCUNHO 
+  })
+  status: StatusReembolso;
+
+  @Column({ name: 'comprovante_url', type: 'varchar', length: 255, nullable: true })
+  comprovanteUrl: string;
+
+  @CreateDateColumn({ name: 'criado_em' })
+  criadoEm: Date; 
+
+  @UpdateDateColumn({ name: 'atualizado_em' })
+  atualizadoEm: Date;
 }
