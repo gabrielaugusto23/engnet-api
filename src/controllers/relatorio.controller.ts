@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Patch, Body, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { RelatorioService } from '../application/relatorio/relatorio.service';
-import { CreateRelatorioDto } from '../application/relatorio/create-relatorio.dto';
-import { UpdateRelatorioDto } from '../application/relatorio/update-relatorio.dto';
+import { CreateRelatorioDto } from '../application/relatorio/dto/create-relatorio.dto';
+import { UpdateRelatorioDto } from '../application/relatorio/dto/update-relatorio.dto';
 
 @ApiTags('Relatórios') 
 @Controller('relatorios')

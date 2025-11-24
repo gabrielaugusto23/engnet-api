@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsString, IsOptional, IsDateString } from 'class-validator';
-import { CategoriaRelatorio, TipoRelatorio, PeriodoRelatorio, StatusRelatorio } from '../../entity/relatorio/relatorio.enums';
+import { CategoriaRelatorio, TipoRelatorio, PeriodoRelatorio, StatusRelatorio } from '../../../entity/relatorio/relatorio.enums';
 
 export class CreateRelatorioDto {
   @ApiProperty({ example: 'Fechamento Outubro', description: 'Nome do relatório' })

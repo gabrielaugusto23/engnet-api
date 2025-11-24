@@ -3,7 +3,7 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import databaseConfig from "../config/database.config";
 import {AuthModule} from "./auth.module";
-import { UsuariosModule } from '../../../modules/usuarios/usuarios.module';
+import { UsuariosModule } from '../../../application/user/usuarios.module';
 import {RelatorioModule} from "../../../application/relatorio/relatorio.module";
 
 @Module({

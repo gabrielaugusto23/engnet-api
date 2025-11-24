@@ -2,9 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Relatorio } from '../../entity/relatorio/relatorio.entity';
-import { CreateRelatorioDto } from '../relatorio/create-relatorio.dto';
+import { CreateRelatorioDto } from './dto/create-relatorio.dto';
 import { StatusRelatorio } from '../../entity/relatorio/relatorio.enums';
-import { UpdateRelatorioDto } from '../relatorio/update-relatorio.dto';
+import { UpdateRelatorioDto } from './dto/update-relatorio.dto';
 
 @Injectable()
 export class RelatorioService {
