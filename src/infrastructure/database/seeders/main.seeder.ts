@@ -2,13 +2,22 @@ import { AppDataSource } from '../config/data-source';
 import { TipoDespesa } from '../../../entity/tipo-despesa/tipo-despesa.entity';
 import { UserEntity } from '../../../entity/user/user.entity';
 import { Relatorio } from '../../../entity/relatorio/relatorio.entity';
+import { Cliente } from '../../../entity/client/client.entity';
+import { Venda } from '../../../entity/venda/venda.entity';
+import { Transacao } from '../../../entity/transacao/transacao.entity';
+import { TipoTransacao, StatusTransacao } from '../../../entity/transacao/transacao.enums';
 import { 
   CategoriaRelatorio, 
   PeriodoRelatorio, 
   StatusRelatorio, 
   TipoRelatorio 
 } from '../../../entity/relatorio/relatorio.enums';
+import { 
+  CategoriaVenda, 
+  StatusVenda 
+} from '../../../entity/venda/venda.enums';
 import { UserRole } from '../../../entity/user/user.enums'; 
+import { StatusCliente } from '../../../entity/client/client.enums'; 
 import * as bcrypt from 'bcrypt';
 
 async function bootstrap() {
@@ -16,6 +25,7 @@ async function bootstrap() {
     console.log('Inicializando conexão para Seeding...');
     await AppDataSource.initialize();
 
+    // Seed para tipos de despesas
     const tipoDespesaRepo = AppDataSource.getRepository(TipoDespesa);
     const tipos = [
       { nome: 'Alimentação', descricao: 'Gastos com refeições durante o trabalho.' },
@@ -32,43 +42,196 @@ async function bootstrap() {
       }
     }
 
+    // Seed para usuários
     const userRepo = AppDataSource.getRepository(UserEntity);
     
-    // Usuário admin
+    // Criando usuário admin caso ele não exista ainda
     const adminEmail = 'admin@engnet.com.br';
-    const adminExists = await userRepo.findOneBy({ email: adminEmail });
+    let adminUser = await userRepo.findOneBy({ email: adminEmail });
     
-    if (!adminExists) {
+    if (!adminUser) {
       const passwordHash = await bcrypt.hash('123456', 10);
-      const admin = userRepo.create({
-        nome: 'Admin EngNet',
+      const novoAdmin = userRepo.create({
+        nome: 'Augusto Rocha Real',
         email: adminEmail,
         senha: passwordHash,
         ativo: true,
-        role: UserRole.ADMIN, // Usuário com papel de Admin
+        role: UserRole.ADMIN,
       });
-      await userRepo.save(admin);
-      console.log(`[OK] Usuário ADMIN criado: ${adminEmail} (Senha: 123456)`);
+      adminUser = await userRepo.save(novoAdmin); 
+      console.log(`[OK] Usuário ADMIN criado: ${adminEmail}`);
+    } else {
+       console.log(`[SKIP] Usuário ADMIN já existe: ${adminEmail}`);
     }
 
-    // Usuário membro
+    // Criando usuário membro caso ele não exista ainda
     const memberEmail = 'membro@engnet.com.br';
     const memberExists = await userRepo.findOneBy({ email: memberEmail });
 
     if (!memberExists) {
       const passwordHash = await bcrypt.hash('123456', 10);
       const member = userRepo.create({
-        nome: 'Membro Equipe',
+        nome: 'Alberto Silva',
         email: memberEmail,
         senha: passwordHash,
         ativo: true,
-        role: UserRole.MEMBER, // Usuário com papel de Membro
+        role: UserRole.MEMBER,
       });
       await userRepo.save(member);
-      console.log(`[OK] Usuário MEMBER criado: ${memberEmail} (Senha: 123456)`);
+      console.log(`[OK] Usuário MEMBER criado: ${memberEmail}`);
     }
 
-    // Seed relatórios
+    // Seed para clientes
+
+    const clienteRepo = AppDataSource.getRepository(Cliente);
+    console.log('Gerando clientes de exemplo...');
+    const clientesDados = [
+      {
+        nome: 'João Silva',
+        email: 'joao@email.com',
+        telefone: '(11) 99999-1111',
+        totalCompras: 15200.00,
+        status: StatusCliente.VIP
+      },
+      {
+        nome: 'Maria Santos',
+        email: 'maria@email.com',
+        telefone: '(11) 99999-2222',
+        totalCompras: 8450.00,
+        status: StatusCliente.ATIVO
+      },
+      {
+        nome: 'Tech Solutions Ltda',
+        email: 'contato@techsolutions.com.br',
+        telefone: '(11) 99999-8888',
+        totalCompras: 0.00,
+        status: StatusCliente.NOVO
+      }
+    ];
+
+    for (const cli of clientesDados) {
+      const exists = await clienteRepo.findOneBy({ email: cli.email });
+      if (!exists) {
+        const novo = clienteRepo.create(cli);
+        await clienteRepo.save(novo);
+        console.log(`[OK] Cliente criado: ${cli.nome}`);
+      }
+    }
+
+    const joao = await clienteRepo.findOneBy({ email: 'joao@email.com' });
+    const maria = await clienteRepo.findOneBy({ email: 'maria@email.com' });
+    const tech = await clienteRepo.findOneBy({ email: 'contato@techsolutions.com.br' });
+
+    // Seed para vendas
+
+    console.log('Gerando vendas de exemplo...');
+    const vendaRepo = AppDataSource.getRepository(Venda);
+
+    if (adminUser && memberExists && joao && maria && tech) {
+      const vendasExemplo = [
+        {
+          descricao: 'Projeto de Consultoria TI',
+          categoria: CategoriaVenda.CONSULTORIA,
+          valor: 15200.00,
+          status: StatusVenda.CONCLUIDA,
+          dataHora: new Date('2025-11-10T10:00:00'),
+          vendedor: adminUser, 
+          cliente: joao  // Aqui entra o Cliente (João)
+        },
+        {
+          descricao: 'Pacote de Licenças Office',
+          categoria: CategoriaVenda.LICENCAS,
+          valor: 5000.00,
+          status: StatusVenda.CONCLUIDA,
+          dataHora: new Date('2025-11-15T14:30:00'),
+          vendedor: adminUser,
+          cliente: maria
+        },
+        {
+          descricao: 'Suporte Técnico Mensal',
+          categoria: CategoriaVenda.SUPORTE,
+          valor: 3450.00,
+          status: StatusVenda.PENDENTE,
+          dataHora: new Date(),
+          vendedor: adminUser,
+          cliente: maria
+        },
+        {
+          descricao: 'Desenvolvimento Customizado - Portal',
+          categoria: CategoriaVenda.CUSTOMIZADO,
+          valor: 25000.00,
+          status: StatusVenda.PROCESSANDO,
+          dataHora: new Date('2025-11-24T09:00:00'),
+          vendedor: memberExists,
+          cliente: tech
+        }
+      ];
+
+      for (const dadosVenda of vendasExemplo) {
+        const exists = await vendaRepo.findOneBy({ descricao: dadosVenda.descricao });
+        
+        if (!exists) {
+          const novaVenda = vendaRepo.create(dadosVenda);
+          await vendaRepo.save(novaVenda);
+          console.log(`[OK] Venda criada: ${dadosVenda.descricao}`);
+        }
+      }
+    } else {
+      console.log('[AVISO] Não foi possível criar vendas. Admin ou Clientes não encontrados.');
+    }
+
+    // Seed para transações
+
+    console.log('Gerando transações de exemplo...');
+    const transacaoRepo = AppDataSource.getRepository(Transacao);
+
+    const vendaConsultoria = await vendaRepo.findOneBy({ descricao: 'Projeto de Consultoria TI' });
+    const vendaLicenca = await vendaRepo.findOneBy({ descricao: 'Pacote de Licenças Office' });
+    const vendaPortal = await vendaRepo.findOneBy({ descricao: 'Desenvolvimento Customizado - Portal' });
+
+    if (vendaConsultoria && vendaLicenca && vendaPortal && adminUser) {
+      const transacoesExemplo = [
+        {
+          venda: vendaConsultoria,
+          tipo: TipoTransacao.BOLETO,
+          valor: 15200.00,
+          status: StatusTransacao.CONCLUIDA,
+          dataHora: new Date('2025-11-12T10:00:00'),
+          quemRealizou: adminUser,
+          descricao: 'Pagamento integral via Boleto Bancário'
+        },
+        {
+          venda: vendaLicenca,
+          tipo: TipoTransacao.PIX,
+          valor: 5000.00,
+          status: StatusTransacao.CONCLUIDA,
+          dataHora: new Date('2025-11-16T15:00:00'),
+          quemRealizou: adminUser,
+          descricao: 'Pix recebido - Chave CNPJ'
+        },
+        {
+          venda: vendaPortal,
+          tipo: TipoTransacao.TRANSFERENCIA,
+          valor: 12500.00, 
+          status: StatusTransacao.PENDENTE,
+          dataHora: new Date(),
+          quemRealizou: adminUser,
+          descricao: 'Entrada de 50% aguardando compensação'
+        }
+      ];
+
+      for (const trx of transacoesExemplo) {
+        const exists = await transacaoRepo.findOneBy({ descricao: trx.descricao });
+        if (!exists) {
+          const novaTrx = transacaoRepo.create(trx);
+          await transacaoRepo.save(novaTrx);
+          console.log(`[OK] Transação criada: ${trx.descricao}`);
+        }
+      }
+    }
+
+    // Seed para relatórios
+
     console.log('Gerando relatórios de exemplo...');
     const relatorioRepo = AppDataSource.getRepository(Relatorio);
 
