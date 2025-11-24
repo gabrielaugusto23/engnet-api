@@ -28,7 +28,7 @@ export class Reembolso {
   @Column({ name: 'observacao', type: 'text', nullable: true })
   observacao: string;
 
-  // FK para Usuario (como colocado no DLD: FK_USUARIO_id_usuario)
+  // FK para Usuario 
   @ManyToOne(() => UserEntity, (usuario) => usuario.reembolsos)
   @JoinColumn({ name: 'FK_USUARIO_id_usuario' }) 
   usuario: UserEntity;
