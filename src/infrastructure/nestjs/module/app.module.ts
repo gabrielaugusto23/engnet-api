@@ -1,6 +1,3 @@
-import * as crypto from 'crypto';
-global['crypto'] = crypto as any;
-
 import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
