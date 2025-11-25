@@ -35,7 +35,7 @@ async function bootstrap() {
     const userRepo = AppDataSource.getRepository(UserEntity);
     
   // usuário admin
-    const adminEmail = 'admin@engnet.com.br';
+    const adminEmail = 'admin@engnetconsultoria.com.br';
     let adminUser = await userRepo.findOneBy({ email: adminEmail });
     
     if (!adminUser) {
