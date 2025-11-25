@@ -35,4 +35,8 @@ export class AuthService {
       }
     };
   }
+  
+  async logout() {
+    return { message: 'Logout realizado com sucesso', status: true };
+  }
 }
