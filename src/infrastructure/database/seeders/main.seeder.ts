@@ -55,7 +55,7 @@ async function bootstrap() {
       console.log(`[OK] Usuário ADMIN criado: ${adminEmail}`);
     }
 
-    // --- usuário membro ---
+    // usuário membro 
     const memberEmail = 'membro@engnet.com.br';
     let memberUser = await userRepo.findOneBy({ email: memberEmail });
 

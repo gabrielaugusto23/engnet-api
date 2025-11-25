@@ -63,7 +63,7 @@ export class UsuariosService {
   async atualizar(id: string, dto: AtualizarUsuarioDto): Promise<UserEntity> {
     const usuario = await this.obterPorId(id);
 
-    // Se estiver trocando de email ele verificar se o email daqui já não pertence a outra conta
+    // Se o usuário estiver trocando de email ele verificar se o email não pertence a outra conta
     if (dto.email && dto.email !== usuario.email) {
       const emailEmUso = await this.usuarioRepository.findOneBy({ email: dto.email });
       if (emailEmUso) {
@@ -78,7 +78,6 @@ export class UsuariosService {
       dadosAtualizados.senha = await bcrypt.hash(dadosAtualizados.senha, salt);
     }
 
-    // Aqui acontece o merge e o salvamento
     this.usuarioRepository.merge(usuario, dadosAtualizados);
     return this.usuarioRepository.save(usuario);
   }

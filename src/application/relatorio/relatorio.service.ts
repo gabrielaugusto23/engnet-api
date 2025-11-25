@@ -19,7 +19,7 @@ export class RelatorioService {
       ...dto,
       // Define a data de agora
       dataHora: dataFinal, 
-      // Status começa processando
+      // Status começa como processando
       status: StatusRelatorio.PROCESSANDO 
     });
     return await this.repo.save(relatorio);

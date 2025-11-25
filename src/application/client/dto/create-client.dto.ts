@@ -1,4 +1,3 @@
-// src/application/client/dto/create-client.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { 
   IsEmail, 
@@ -31,8 +30,6 @@ export class CreateClientDto {
   @IsString()
   @IsNotEmpty({ message: 'O telefone é obrigatório' })
   telefone: string;
-
-  // --- CAMPOS OPCIONAIS ---
 
   @ApiProperty({ required: false, example: '12.345.678/0001-90' })
   @IsOptional()

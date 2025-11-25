@@ -66,8 +66,6 @@ export class VendaService {
       dadosAtualizados.dataHora = new Date(dto.dataHora);
     }
 
-    // Talvez adicionar depois lógica para atualizar o total de compra do cliente se o status ou valor mudar
-
     this.repo.merge(venda, dadosAtualizados);
     return await this.repo.save(venda);
   }

@@ -57,7 +57,7 @@ export class CreateReembolsoDto {
 
   @ApiProperty({ 
     required: false, 
-    example: 'https://bucket.com/comprovante.pdf', 
+    example: 'comprovante.pdf', 
     description: 'Link do comprovante (upload feito separadamente)' 
   })
   @IsOptional()
