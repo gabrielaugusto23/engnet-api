@@ -1,6 +1,6 @@
 export enum UserRole {
-  ADMIN = 'ADMIN',       
-  MEMBER = 'MEMBER',     
+  ADMIN = 'Admin',       
+  MEMBER = 'Membro',     
 }
 
 export enum Departamento {
