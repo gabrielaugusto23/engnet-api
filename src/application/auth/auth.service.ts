@@ -1,41 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import {Repository} from "typeorm";
-import {UserEntity} from "../../entity/user/user.entity";
-import {InjectRepository} from "@nestjs/typeorm";
-import {LogindDto} from "./dto/LogindDto";
-import {LoginResponse} from "./response/LoginResponse";
+import { UsuariosService } from '../user/usuarios.service';
+import { LogindDto } from './dto/LogindDto';
 
 @Injectable()
-export class AuthServiceImplemantation  {
+export class AuthService {
+  constructor(
+    private usuariosService: UsuariosService,
+    private jwtService: JwtService,
+  ) {}
 
-    constructor(@InjectRepository(UserEntity)private userRepository : Repository<UserEntity>,private jwtService: JwtService) {}
+  async login(loginDto: LogindDto) {
+    const user = await this.usuariosService.obterParaLogin(loginDto.email);
 
-
-    async login(login: LogindDto): Promise<LoginResponse> {
-        const user = await this.userRepository.findOne({where : { email: login.email }});
-
-        if (!user) {
-            throw new Error('O email ou senha estão incorretos');
-        }
-
-        const senhaInserida = login.password;
-        const senhaHash = user.senha;
-
-        const usuarioAutenticado = await bcrypt.compare(senhaInserida, senhaHash);
-
-        if (!usuarioAutenticado) {
-          throw new Error('O email ou senha estão incorretos');
-        }
-
-        const payload = {
-            sub: user.id,
-            email: user.email,
-        };
-
-        return {
-            accessToken: await this.jwtService.signAsync(payload),
-        };
+    if (!user || !(await bcrypt.compare(loginDto.senha, user.senha))) {
+      throw new UnauthorizedException('Email ou senha incorretos');
     }
+
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+      user: {
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatarUrl
+      }
+    };
+  }
 }
