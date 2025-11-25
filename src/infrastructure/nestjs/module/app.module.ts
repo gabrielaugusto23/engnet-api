@@ -68,7 +68,8 @@ export class AppModule implements OnModuleInit {
             senha: '123456',
             role: UserRole.ADMIN,
             ativo: true,
-            avatarUrl: null
+            avatarUrl: null,
+            telefone: '(11) 99999-9999',
           } as any);
           console.log('Usuário João criado com sucesso!');
         } else {
