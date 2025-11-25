@@ -39,7 +39,7 @@ async function bootstrap() {
     let adminUser = await userRepo.findOneBy({ email: adminEmail });
     
     if (!adminUser) {
-      const passwordHash = await bcrypt.hash('123456', 10);
+      const passwordHash = await bcrypt.hash('Engnet@2025', 10);
       const novoAdmin = userRepo.create({
         nome: 'Augusto Rocha Real',
         email: adminEmail,
@@ -56,11 +56,11 @@ async function bootstrap() {
     }
 
     // usuário membro 
-    const memberEmail = 'membro@engnet.com.br';
+    const memberEmail = 'membro@engnetconsultoria.com.br';
     let memberUser = await userRepo.findOneBy({ email: memberEmail });
 
     if (!memberUser) {
-      const passwordHash = await bcrypt.hash('123456', 10);
+      const passwordHash = await bcrypt.hash('Engnet@2025', 10);
       const member = userRepo.create({
         nome: 'Alberto Silva',
         email: memberEmail,
