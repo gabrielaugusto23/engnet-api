@@ -14,14 +14,16 @@ import { ReembolsoModule } from '../../../application/reembolso/reembolso.module
 import { UserEntity } from '../../../entity/user/user.entity';
 import { Cliente } from '../../../entity/client/client.entity';
 import { Reembolso } from '../../../entity/reembolso/reembolso.entity';
-import { UserRole } from '../../../entity/user/user.enums';
+import { Venda } from '../../../entity/venda/venda.entity';
+import { Transacao } from '../../../entity/transacao/transacao.entity';
+import { Relatorio } from '../../../entity/relatorio/relatorio.entity';
 
-// controler
+// controllers
 import { AuthController } from '../../../controllers/auth.controllers';
 import { ClientController } from '../../../controllers/client.controller';
 import { UsuariosController } from '../../../controllers/usuarios.controller';
 
-// service
+// services
 import { AuthService } from '../../../application/auth/auth.service';
 import { ClientService } from '../../../application/client/client.service';
 import { UsuariosService } from '../../../application/user/usuarios.service';
@@ -47,50 +49,19 @@ import { UsuariosService } from '../../../application/user/usuarios.service';
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'engnet_db',
-
-      entities: [UserEntity, Cliente, Reembolso], 
+      entities: [UserEntity, Cliente, Reembolso, Venda, Transacao, Relatorio],
       synchronize: true,
     }),
     
-    TypeOrmModule.forFeature([UserEntity, Cliente, Reembolso]),
+    TypeOrmModule.forFeature([UserEntity, Cliente, Reembolso, Venda, Transacao, Relatorio]),
 
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || 'segredo_padrao',
-      signOptions: { expiresIn: '1d' },
+      signOptions: { expiresIn: 600 },
     }),
   ],
   controllers: [AuthController, ClientController, UsuariosController],
   providers: [AuthService, ClientService, UsuariosService],
 })
-export class AppModule implements OnModuleInit {
-  constructor(private usuariosService: UsuariosService) {}
-
-  async onModuleInit() {
-    const email = 'joao@engnetconsultoria.com.br';
-    console.log('Verificando seed...');
-    
-    try {
-        const users = await this.usuariosService.obterTodos();
-        const userExist = users.find(u => u.email === email);
-    
-        if (!userExist) {
-          console.log('Criando usuário João Silva...');
-          await this.usuariosService.criar({
-            nome: 'João Silva',
-            email: email,
-            senha: '123456',
-            role: UserRole.ADMIN,
-            ativo: true,
-            avatarUrl: null,
-            telefone: '(11) 99999-9999',
-          } as any);
-          console.log('Usuário João criado com sucesso!');
-        } else {
-            console.log('Usuário João já existe.');
-        }
-    } catch (error) {
-        console.error('Erro no seed:', error);
-    }
-  }
-}
+export class AppModule {} 
