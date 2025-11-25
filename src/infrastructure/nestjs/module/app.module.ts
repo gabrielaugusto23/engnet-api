@@ -1,12 +1,16 @@
-import * as crypto from 'crypto';
-global['crypto'] = crypto as any;
-
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 
-// entidades
+import databaseConfig from "../config/database.config";
+import { AuthModule } from './auth.module';
+import { UsuariosModule } from '../../../application/user/usuarios.module';
+import {RelatorioModule} from "../../../application/relatorio/relatorio.module";
+import { ClientModule } from '../../../application/client/client.module';
+import { VendaModule } from '../../../application/venda/venda.module';
+import { TransacaoModule } from 'src/application/transcao/transacao.module';
+import { ReembolsoModule } from '../../../application/reembolso/reembolso.module';
 import { UserEntity } from '../../../entity/user/user.entity';
 import { Cliente } from '../../../entity/client/client.entity';
 import { Reembolso } from '../../../entity/reembolso/reembolso.entity';
@@ -26,7 +30,17 @@ import { UsuariosService } from '../../../application/user/usuarios.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
+    UsuariosModule,
+    ClientModule,
+    RelatorioModule,
+    VendaModule,
+    TransacaoModule,
+    ReembolsoModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [databaseConfig],
+    }),
     
     TypeOrmModule.forRoot({
       type: 'postgres',
