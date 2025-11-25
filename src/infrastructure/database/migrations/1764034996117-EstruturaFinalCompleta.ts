@@ -1,16 +1,19 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class EstruturaFinalCompleta1764005958882 implements MigrationInterface {
-    name = 'EstruturaFinalCompleta1764005958882'
+export class EstruturaFinalCompleta1764034996117 implements MigrationInterface {
+    name = 'EstruturaFinalCompleta1764034996117'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TYPE "public"."reembolso_categoria_enum" AS ENUM('Combustível', 'Alimentação', 'Transporte', 'Hospedagem', 'Material de Escritório', 'Outros')`);
         await queryRunner.query(`CREATE TYPE "public"."reembolso_status_enum" AS ENUM('Pendente', 'Aprovado', 'Rejeitado', 'Rascunho')`);
         await queryRunner.query(`CREATE TABLE "reembolso" ("id_reembolso" uuid NOT NULL DEFAULT uuid_generate_v4(), "codigo_sequencial" SERIAL NOT NULL, "id_usuario" uuid, "categoria" "public"."reembolso_categoria_enum" NOT NULL, "descricao" text NOT NULL, "justificativa_comercial" text, "valor" numeric(10,2) NOT NULL, "data_despesa" date NOT NULL, "status" "public"."reembolso_status_enum" NOT NULL DEFAULT 'Rascunho', "comprovante_url" character varying(255), "criado_em" TIMESTAMP NOT NULL DEFAULT now(), "atualizado_em" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_133e8dcd32d15564efab2d824d3" PRIMARY KEY ("id_reembolso"))`);
+        await queryRunner.query(`CREATE TYPE "public"."usuario_departamento_enum" AS ENUM('Vendas', 'Suporte', 'Desenvolvimento', 'Design', 'Marketing', 'Financeiro', 'Recursos Humanos', 'Operações', 'Comercial')`);
+        await queryRunner.query(`CREATE TYPE "public"."usuario_cargo_enum" AS ENUM('Gerente', 'Coordenador', 'Analista', 'Especialista', 'Assistente', 'Estagiário', 'Diretor')`);
         await queryRunner.query(`CREATE TYPE "public"."usuario_role_enum" AS ENUM('ADMIN', 'MEMBER')`);
-        await queryRunner.query(`CREATE TABLE "usuario" ("id_usuario" uuid NOT NULL DEFAULT uuid_generate_v4(), "nome" character varying(255) NOT NULL, "email" character varying(255) NOT NULL, "senha" character varying(255) NOT NULL, "role" "public"."usuario_role_enum" NOT NULL DEFAULT 'MEMBER', "ativo" boolean NOT NULL DEFAULT true, "avatar_url" character varying(255), "data_criacao" TIMESTAMP NOT NULL DEFAULT now(), "data_atualizacao" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_2863682842e688ca198eb25c124" UNIQUE ("email"), CONSTRAINT "PK_dd52716c2652e0e23c15530c695" PRIMARY KEY ("id_usuario"))`);
+        await queryRunner.query(`CREATE TABLE "usuario" ("id_usuario" uuid NOT NULL DEFAULT uuid_generate_v4(), "nome" character varying(255) NOT NULL, "email" character varying(255) NOT NULL, "senha" character varying(255) NOT NULL, "telefone" character varying(20) NOT NULL, "departamento" "public"."usuario_departamento_enum" NOT NULL DEFAULT 'Operações', "cargo" "public"."usuario_cargo_enum" NOT NULL DEFAULT 'Assistente', "descricao" text, "role" "public"."usuario_role_enum" NOT NULL DEFAULT 'MEMBER', "ativo" boolean NOT NULL DEFAULT true, "avatar_url" character varying(255), "data_criacao" TIMESTAMP NOT NULL DEFAULT now(), "data_atualizacao" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_2863682842e688ca198eb25c124" UNIQUE ("email"), CONSTRAINT "PK_dd52716c2652e0e23c15530c695" PRIMARY KEY ("id_usuario"))`);
+        await queryRunner.query(`CREATE TYPE "public"."client_estado_enum" AS ENUM('AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO')`);
         await queryRunner.query(`CREATE TYPE "public"."client_status_enum" AS ENUM('VIP', 'Ativo', 'Inativo', 'Novo')`);
-        await queryRunner.query(`CREATE TABLE "client" ("id_cliente" uuid NOT NULL DEFAULT uuid_generate_v4(), "codigo_sequencial" SERIAL NOT NULL, "nome" character varying(255) NOT NULL, "email" character varying(255) NOT NULL, "telefone" character varying(20) NOT NULL, "total_compras" numeric(10,2) NOT NULL DEFAULT '0', "status" "public"."client_status_enum" NOT NULL DEFAULT 'Novo', "criado_em" TIMESTAMP NOT NULL DEFAULT now(), "atualizado_em" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_6436cc6b79593760b9ef921ef12" UNIQUE ("email"), CONSTRAINT "PK_faf29c7b0d6dddbcc3579dcdeac" PRIMARY KEY ("id_cliente"))`);
+        await queryRunner.query(`CREATE TABLE "client" ("id_cliente" uuid NOT NULL DEFAULT uuid_generate_v4(), "codigo_sequencial" SERIAL NOT NULL, "nome_empresa" character varying(255) NOT NULL, "nome_contato" character varying(255) NOT NULL, "email" character varying(255) NOT NULL, "telefone" character varying(20) NOT NULL, "cnpj" character varying(20), "endereco" text, "cidade" character varying(100), "estado" "public"."client_estado_enum", "cep" character varying(10), "descricao" text, "total_compras" numeric(10,2) NOT NULL DEFAULT '0', "status" "public"."client_status_enum" NOT NULL DEFAULT 'Novo', "criado_em" TIMESTAMP NOT NULL DEFAULT now(), "atualizado_em" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_6436cc6b79593760b9ef921ef12" UNIQUE ("email"), CONSTRAINT "PK_faf29c7b0d6dddbcc3579dcdeac" PRIMARY KEY ("id_cliente"))`);
         await queryRunner.query(`CREATE TYPE "public"."venda_categoria_enum" AS ENUM('Serviços Consultoria', 'Licenças Software', 'Suporte Técnico', 'Desenvolvimento Customizado', 'Implantação Sistema', 'Treinamento')`);
         await queryRunner.query(`CREATE TYPE "public"."venda_status_enum" AS ENUM('Concluida', 'Pendente', 'Cancelada', 'Processando')`);
         await queryRunner.query(`CREATE TABLE "venda" ("id_venda" uuid NOT NULL DEFAULT uuid_generate_v4(), "codigo_sequencial" SERIAL NOT NULL, "id_vendedor" uuid, "id_cliente" uuid, "categoria" "public"."venda_categoria_enum" NOT NULL, "valor" numeric(10,2) NOT NULL, "data_hora" TIMESTAMP NOT NULL, "status" "public"."venda_status_enum" NOT NULL DEFAULT 'Pendente', "descricao" text, "criado_em" TIMESTAMP NOT NULL DEFAULT now(), "atualizado_em" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_0b5cb96cfbe10a76e19661e2175" PRIMARY KEY ("id_venda"))`);
@@ -48,8 +51,11 @@ export class EstruturaFinalCompleta1764005958882 implements MigrationInterface {
         await queryRunner.query(`DROP TYPE "public"."venda_categoria_enum"`);
         await queryRunner.query(`DROP TABLE "client"`);
         await queryRunner.query(`DROP TYPE "public"."client_status_enum"`);
+        await queryRunner.query(`DROP TYPE "public"."client_estado_enum"`);
         await queryRunner.query(`DROP TABLE "usuario"`);
         await queryRunner.query(`DROP TYPE "public"."usuario_role_enum"`);
+        await queryRunner.query(`DROP TYPE "public"."usuario_cargo_enum"`);
+        await queryRunner.query(`DROP TYPE "public"."usuario_departamento_enum"`);
         await queryRunner.query(`DROP TABLE "reembolso"`);
         await queryRunner.query(`DROP TYPE "public"."reembolso_status_enum"`);
         await queryRunner.query(`DROP TYPE "public"."reembolso_categoria_enum"`);
