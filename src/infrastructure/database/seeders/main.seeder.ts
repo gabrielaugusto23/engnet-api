@@ -5,12 +5,25 @@ import { Cliente } from '../../../entity/client/client.entity';
 import { Venda } from '../../../entity/venda/venda.entity';
 import { Transacao } from '../../../entity/transacao/transacao.entity';
 import { Reembolso } from '../../../entity/reembolso/reembolso.entity';
-import { CategoriaRelatorio, PeriodoRelatorio, StatusRelatorio, TipoRelatorio } from '../../../entity/relatorio/relatorio.enums';
-import { CategoriaVenda, StatusVenda} from '../../../entity/venda/venda.enums';
+import { UserRole, Departamento, Cargo } from '../../../entity/user/user.enums';
+
 import { TipoTransacao, StatusTransacao } from '../../../entity/transacao/transacao.enums';
-import { CategoriaReembolso, StatusReembolso } from '../../../entity/reembolso/reembolso.enums';
-import { UserRole } from '../../../entity/user/user.enums'; 
-import { StatusCliente } from '../../../entity/client/client.enums'; 
+import { 
+  CategoriaRelatorio, 
+  PeriodoRelatorio, 
+  StatusRelatorio, 
+  TipoRelatorio 
+} from '../../../entity/relatorio/relatorio.enums';
+import { 
+  CategoriaVenda, 
+  StatusVenda 
+} from '../../../entity/venda/venda.enums';
+import { 
+  CategoriaReembolso, 
+  StatusReembolso 
+} from '../../../entity/reembolso/reembolso.enums';
+ 
+import { StatusCliente, EstadosBrasil } from '../../../entity/client/client.enums';
 import * as bcrypt from 'bcrypt';
 
 async function bootstrap() {
@@ -18,10 +31,10 @@ async function bootstrap() {
     console.log('Inicializando conexão para Seeding...');
     await AppDataSource.initialize();
 
-    // Seed para usuários
+    // 1. seed usuários
     const userRepo = AppDataSource.getRepository(UserEntity);
     
-    // Criando usuário admin caso ele não exista ainda
+  // usuário admin
     const adminEmail = 'admin@engnet.com.br';
     let adminUser = await userRepo.findOneBy({ email: adminEmail });
     
@@ -31,16 +44,18 @@ async function bootstrap() {
         nome: 'Augusto Rocha Real',
         email: adminEmail,
         senha: passwordHash,
+        telefone: '(61) 99999-8888',      
+        departamento: Departamento.COMERCIAO, 
+        cargo: Cargo.DIRETOR,             
+        descricao: 'Administrador do Sistema', 
         ativo: true,
         role: UserRole.ADMIN,
       });
-      adminUser = await userRepo.save(novoAdmin); 
+      adminUser = await userRepo.save(novoAdmin);
       console.log(`[OK] Usuário ADMIN criado: ${adminEmail}`);
-    } else {
-       console.log(`[SKIP] Usuário ADMIN já existe: ${adminEmail}`);
     }
 
-    // Criando usuário membro caso ele não exista ainda
+    // usuário membro 
     const memberEmail = 'membro@engnet.com.br';
     let memberUser = await userRepo.findOneBy({ email: memberEmail });
 
@@ -50,38 +65,50 @@ async function bootstrap() {
         nome: 'Alberto Silva',
         email: memberEmail,
         senha: passwordHash,
+        telefone: '(61) 98888-7777',         
+        departamento: Departamento.VENDAS,   
+        cargo: Cargo.ANALISTA,              
+        descricao: 'Vendedor Senior',        
         ativo: true,
         role: UserRole.MEMBER,
       });
       memberUser = await userRepo.save(member);
       console.log(`[OK] Usuário MEMBER criado: ${memberEmail}`);
-    }else {
-       console.log(`[SKIP] Usuário MEMBER já existe: ${memberEmail}`);
     }
 
-    // Seed para clientes
-
+    // 2. seed clientes 
     const clienteRepo = AppDataSource.getRepository(Cliente);
     console.log('Gerando clientes de exemplo...');
+    
     const clientesDados = [
       {
-        nome: 'João Silva',
+        nomeEmpresa: 'JS Consultoria LTDA', 
+        nome: 'João Silva',                
         email: 'joao@email.com',
         telefone: '(11) 99999-1111',
+        cnpj: '12.345.678/0001-90',
+        cidade: 'São Paulo',
+        estado: EstadosBrasil.SP,
         totalCompras: 15200.00,
         status: StatusCliente.VIP
       },
       {
+        nomeEmpresa: 'Maria Santos MEI',
         nome: 'Maria Santos',
         email: 'maria@email.com',
         telefone: '(11) 99999-2222',
+        cidade: 'Rio de Janeiro',
+        estado: EstadosBrasil.RJ,
         totalCompras: 8450.00,
         status: StatusCliente.ATIVO
       },
       {
-        nome: 'Tech Solutions Ltda',
+        nomeEmpresa: 'Tech Solutions Ltda',
+        nome: 'Carlos Oliveira',
         email: 'contato@techsolutions.com.br',
         telefone: '(11) 99999-8888',
+        cidade: 'Belo Horizonte',
+        estado: EstadosBrasil.MG,
         totalCompras: 0.00,
         status: StatusCliente.NOVO
       }
@@ -92,7 +119,7 @@ async function bootstrap() {
       if (!exists) {
         const novo = clienteRepo.create(cli);
         await clienteRepo.save(novo);
-        console.log(`[OK] Cliente criado: ${cli.nome}`);
+        console.log(`[OK] Cliente criado: ${cli.nomeEmpresa}`);
       }
     }
 
@@ -100,8 +127,7 @@ async function bootstrap() {
     const maria = await clienteRepo.findOneBy({ email: 'maria@email.com' });
     const tech = await clienteRepo.findOneBy({ email: 'contato@techsolutions.com.br' });
 
-    // Seed para vendas
-
+    // 3. seed vendas
     console.log('Gerando vendas de exemplo...');
     const vendaRepo = AppDataSource.getRepository(Venda);
 
@@ -114,7 +140,7 @@ async function bootstrap() {
           status: StatusVenda.CONCLUIDA,
           dataHora: new Date('2025-11-10T10:00:00'),
           vendedor: adminUser, 
-          cliente: joao  // Aqui entra o Cliente (João)
+          cliente: joao
         },
         {
           descricao: 'Pacote de Licenças Office',
@@ -158,8 +184,7 @@ async function bootstrap() {
       console.log('[AVISO] Não foi possível criar vendas. Admin ou Clientes não encontrados.');
     }
 
-    // Seed para transações
-
+    // 4. seed transações
     console.log('Gerando transações de exemplo...');
     const transacaoRepo = AppDataSource.getRepository(Transacao);
 
@@ -208,14 +233,12 @@ async function bootstrap() {
       }
     }
 
-    // Seed para reembolsos
-
+    // 5. seed reembolsos
     console.log('Gerando reembolsos de exemplo...');
     const reembolsoRepo = AppDataSource.getRepository(Reembolso);
 
     if (adminUser && memberUser) {
       const reembolsosExemplo = [
-        // Reembolso feito pelo usuário Admin 
         {
           usuario: adminUser,
           categoria: CategoriaReembolso.COMBUSTIVEL,
@@ -249,7 +272,6 @@ async function bootstrap() {
       ];
 
       for (const item of reembolsosExemplo) {
-        // Verifica se já existe esse reembolso pelo campo da descrição 
         const exists = await reembolsoRepo.findOneBy({ descricao: item.descricao });
         if (!exists) {
           const novoReembolso = reembolsoRepo.create(item);
@@ -259,8 +281,7 @@ async function bootstrap() {
       }
     }
 
-    // Seed para relatórios
-
+    // 6. seed relatórios
     console.log('Gerando relatórios de exemplo...');
     const relatorioRepo = AppDataSource.getRepository(Relatorio);
 

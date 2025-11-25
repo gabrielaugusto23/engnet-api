@@ -1,14 +1,14 @@
 import { 
   Injectable, 
   NotFoundException, 
-  ConflictException 
+  ConflictException,
+  BadRequestException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cliente } from '../../entity/client/client.entity';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
-import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class ClientService {
@@ -18,18 +18,15 @@ export class ClientService {
   ) {}
 
   async create(dto: CreateClientDto) {
-    // Aqui verifica duplicidade de email
     const exists = await this.repo.findOneBy({ email: dto.email });
     if (exists) {
       throw new ConflictException('Já existe um cliente com este e-mail.');
     }
-
     const cliente = this.repo.create(dto);
     return await this.repo.save(cliente);
   }
 
   async findAll() {
-    // Ordena pelo código sequencial (1, 2, 3...) para ficar igual ao código padrão (CLI001...)
     return await this.repo.find({
       order: { codigoSequencial: 'ASC' }
     });
@@ -46,7 +43,6 @@ export class ClientService {
   async update(id: string, dto: UpdateClientDto) {
     const cliente = await this.findOne(id);
 
-    // Quando tiver mudando o email, verifica se o email já não pertence a outro cliente
     if (dto.email && dto.email !== cliente.email) {
       const emailEmUso = await this.repo.findOneBy({ email: dto.email });
       if (emailEmUso) {
@@ -63,7 +59,7 @@ export class ClientService {
     
     try {
       return await this.repo.remove(cliente);
-    } catch (error) {
+    } catch (error: any) { 
       if (error?.code === '23503') {
         throw new BadRequestException(
           'Não é possível excluir este cliente pois ele possui vendas ou histórico vinculado. Recomendamos alterar o status para INATIVO.',

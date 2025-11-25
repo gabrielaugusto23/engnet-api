@@ -7,7 +7,7 @@ import {
   OneToMany 
 } from 'typeorm';
 import { Reembolso } from '../reembolso/reembolso.entity';
-import { UserRole } from './user.enums'; 
+import { UserRole, Departamento, Cargo } from './user.enums'; 
 
 @Entity('usuario')
 export class UserEntity {
@@ -22,6 +22,28 @@ export class UserEntity {
   
   @Column({ name: 'senha', type: 'varchar', select: false, length: 255 }) 
   senha: string;
+
+  @Column({ name: 'telefone', type: 'varchar', length: 20 })
+  telefone: string;
+
+  @Column({
+    name: 'departamento',
+    type: 'enum',
+    enum: Departamento,
+    default: Departamento.OPERACOES 
+  })
+  departamento: Departamento;
+
+  @Column({
+    name: 'cargo',
+    type: 'enum',
+    enum: Cargo,
+    default: Cargo.ASSISTENTE 
+  })
+  cargo: Cargo;
+
+  @Column({ name: 'descricao', type: 'text', nullable: true })
+  descricao: string;
 
   @Column({
     name: 'role',

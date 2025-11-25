@@ -9,8 +9,8 @@ import { UsuariosModule } from '../user/usuarios.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Transacao]),
-    VendaModule,    // Validar vendaId
-    UsuariosModule  // Validar quemRealizouId
+    VendaModule,   
+    UsuariosModule  
   ],
   controllers: [TransacaoController],
   providers: [TransacaoService],
