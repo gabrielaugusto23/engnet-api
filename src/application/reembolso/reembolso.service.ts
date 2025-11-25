@@ -15,7 +15,6 @@ export class ReembolsoService {
     private readonly usuariosService: UsuariosService,
   ) {}
 
-  // Recebe o ID do usuário logado separadamente do DTO
   async create(usuarioId: string, dto: CreateReembolsoDto) {
     // Busca o usuário
     const usuario = await this.usuariosService.obterPorId(usuarioId);
