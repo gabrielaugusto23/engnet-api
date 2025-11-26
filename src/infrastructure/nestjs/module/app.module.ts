@@ -1,32 +1,24 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 
 import databaseConfig from "../config/database.config";
+
 import { AuthModule } from './auth.module';
 import { UsuariosModule } from '../../../application/user/usuarios.module';
-import {RelatorioModule} from "../../../application/relatorio/relatorio.module";
+import { RelatorioModule } from "../../../application/relatorio/relatorio.module";
 import { ClientModule } from '../../../application/client/client.module';
 import { VendaModule } from '../../../application/venda/venda.module';
-import { TransacaoModule } from 'src/application/transcao/transacao.module';
+import { TransacaoModule } from '../../../application/transcao/transacao.module';
 import { ReembolsoModule } from '../../../application/reembolso/reembolso.module';
+
 import { UserEntity } from '../../../entity/user/user.entity';
 import { Cliente } from '../../../entity/client/client.entity';
 import { Reembolso } from '../../../entity/reembolso/reembolso.entity';
 import { Venda } from '../../../entity/venda/venda.entity';
 import { Transacao } from '../../../entity/transacao/transacao.entity';
 import { Relatorio } from '../../../entity/relatorio/relatorio.entity';
-
-// controllers
-import { AuthController } from '../../../controllers/auth.controllers';
-import { ClientController } from '../../../controllers/client.controller';
-import { UsuariosController } from '../../../controllers/usuarios.controller';
-
-// services
-import { AuthService } from '../../../application/auth/auth.service';
-import { ClientService } from '../../../application/client/client.service';
-import { UsuariosService } from '../../../application/user/usuarios.service';
 
 @Module({
   imports: [
@@ -41,7 +33,6 @@ import { UsuariosService } from '../../../application/user/usuarios.service';
       isGlobal: true,
       load: [databaseConfig],
     }),
-    
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST || 'localhost',
@@ -52,16 +43,14 @@ import { UsuariosService } from '../../../application/user/usuarios.service';
       entities: [UserEntity, Cliente, Reembolso, Venda, Transacao, Relatorio],
       synchronize: true,
     }),
-    
     TypeOrmModule.forFeature([UserEntity, Cliente, Reembolso, Venda, Transacao, Relatorio]),
-
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || 'segredo_padrao',
       signOptions: { expiresIn: 600 },
     }),
   ],
-  controllers: [AuthController, ClientController, UsuariosController],
-  providers: [AuthService, ClientService, UsuariosService],
+  controllers: [],
+  providers: [],
 })
-export class AppModule {} 
+export class AppModule {}
