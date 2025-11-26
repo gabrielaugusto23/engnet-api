@@ -57,6 +57,20 @@ Para testar a aplicação, execute o script de seed para criar os Tipos de Despe
 npm run seed
 ```
 
+> 🔐 Usuários Padrão do Sistema
+>
+> Após rodar o seed, dois usuários são criados automaticamente:
+>
+> ### **Usuário Administrador**
+> - **Nome:** Augusto Rocha Real  
+> - **Email:** `admin@engnetconsultoria.com.br` 
+> - **Senha:** `Engnet@2025`  
+>
+> ### **Usuário Membro**
+> - **Nome:** Alberto Silva  
+> - **Email:** `membro@engnetconsultoria.com.br`  
+> - **Senha:** `Engnet@2025`
+
 ### 5. Rodar a Aplicação
 A API estará rodando na porta 3001 em: http://localhost:3001.  
 **Inicia o servidor em modo de desenvolvimento (com watch):**
